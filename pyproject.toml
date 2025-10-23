@@ -11,3 +11,6 @@ dependencies = [
     "requests",
     "pydantic-settings",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-mock", "requests-mock"]

@@ -46,7 +46,7 @@ def fetch_and_process(**context):
 
 default_args = {
     "owner": "saizy",
-    "retries": 2,
+    "retries": 3,
     "retry_delay": timedelta(minutes=1),
     "email_on_failure": False,
 }

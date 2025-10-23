@@ -3,3 +3,6 @@ requests>=2.31.0
 pydantic>=2.5.0
 pydantic-settings>=2.0.0
 graphviz
+pytest>=7.0
+pytest-mock>=3.0
+requests-mock>=1.10
