@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marketplace_system"
+version = "0.1.0"
+description = "ETL system for marketplace API"
+dependencies = [
+    "apache-airflow>=2.10",
+    "requests",
+    "pydantic-settings",
+]
