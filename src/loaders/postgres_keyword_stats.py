@@ -9,7 +9,7 @@ from sqlalchemy import (
     Date,
     Time
     )
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.postgresql import insert, JSONB
 from src.loaders.base import BaseLoader
 from src.db.base import BaseEngineManager
 
@@ -27,10 +27,7 @@ class PostgresKeywordStatsLoader(BaseLoader):
             Column("advert_id", String, nullable=False),
             Column("date", Date, nullable=False),
             Column("send_time", Time, nullable=False),
-            Column("keyword", String, nullable=False),
-            Column("clicks", Integer, nullable=False),
-            Column("views", Integer, nullable=False),
-            Column("sum", Float, nullable=False),
+            Column("info_keywords", JSONB, nullable=False),
             schema=None,
             extend_existing=True,
         )
@@ -42,13 +39,12 @@ class PostgresKeywordStatsLoader(BaseLoader):
         engine = self.engine_manager.get_engine()
         metadata = MetaData()
         table = self._get_table(metadata)
-
         table.create(engine, checkfirst=True)
 
         with engine.begin() as conn:
             stmt = insert(table).values(records)
             stmt = stmt.on_conflict_do_nothing(
-                index_elements=["advert_id", "date", "send_time", "keyword"]
+                index_elements=["advert_id", "date", "send_time"]
             )
             result = conn.execute(stmt)
             return result.rowcount

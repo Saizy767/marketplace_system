@@ -24,7 +24,7 @@ dag = DAG(
     description="Fetch keywords data from external API using GenericApiClient",
     schedule="@hourly",
     start_date=START_DATE,
-    catchup=True,
+    catchup=False,
     tags=["api", "etl", "keywords", "stats"],
     params={
         "id": "29441288",
