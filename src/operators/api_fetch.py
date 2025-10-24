@@ -1,6 +1,6 @@
 from airflow.models.baseoperator import BaseOperator
 from src.api_client.generic import GenericApiClient
-from src.schemas.api_schemas.stats_keywords import KeywordListResponse
+from src.schemas.api_schemas.stats_keywords import StatResponse
 import time
 
 
@@ -27,10 +27,10 @@ class ApiFetchOperator(BaseOperator):
             data = client.fetch_data(
                 url=self.url,
                 params=self.params,
-                response_model=KeywordListResponse,
+                response_model=StatResponse,
             )
             duration = time.time() - start_time
-            keyword_count = len(data.keywords)
+            keyword_count = len(data.stat)
             self.log.info(
                 f"✅ Successfully fetched and validated {keyword_count} keyword records "
                 f"in {duration:.2f} seconds"
