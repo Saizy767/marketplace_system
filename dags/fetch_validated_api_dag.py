@@ -1,14 +1,12 @@
 from datetime import datetime 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from src.operators.api_fetch import ApiFetchOperator
 from src.transformers.keyword_stats import KeywordStatsTransformer
 from src.loaders.postgres_keyword_stats import PostgresKeywordStatsLoader
 from src.operators.transform import TransformOperator
 from src.operators.load_to_db import LoadToDbOperator
 from src.db.postgres import PostgresEngineManager
 from src.config.endpoints import get_endpoints
-from airflow.operators.python import get_current_context
 from airflow.exceptions import AirflowFailException
 from src.api_client.generic import GenericApiClient
 from src.schemas.api_schemas.stats_keywords import StatResponse
@@ -41,7 +39,6 @@ def _fetch_keywords_callable(**context):
     if not advert_id:
         raise AirflowFailException("❌ 'advert_id' отсутствует")
 
-    # ВСЁ — это строки!
     params = {
         "id": str(advert_id).strip(),
         "from": context["data_interval_start"].strftime("%Y-%m-%d"),
@@ -55,31 +52,6 @@ def _fetch_keywords_callable(**context):
         response_model=StatResponse,
     )
     return data.model_dump(mode="json")
-
-    # context = get_current_context()
-    
-    # dag_run_conf = context.get("dag_run", {}).conf or {}
-    # advert_id: str = dag_run_conf.get("advert_id")
-
-    # if not advert_id:
-    #     raise AirflowFailException(
-    #         "❌ Обязательный параметр 'advert_id' отсутствует. "
-    #     )
-
-    # rendered_params = {
-    #     "id": advert_id.strip(),
-    #     "from": context["data_interval_start"].strftime("%Y-%m-%d"),
-    #     "to": context["data_interval_end"].strftime("%Y-%m-%d"),
-    # }
-
-    # endpoints = get_endpoints()
-
-    # op = ApiFetchOperator(
-    #     task_id="fetch_keywords_inner",
-    #     url=endpoints.STATISTIC_WORDS,
-    #     params=rendered_params,
-    # )
-    return op.execute(context)
 
 # === 1. Extract ===
 fetch_keywords_task = PythonOperator(

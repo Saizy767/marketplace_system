@@ -7,6 +7,10 @@ class ApiEndpoints:
     api_key: str
 
     @property
+    def ACTIVE_ADVERTS(self) -> str:
+        return f"{self.api_base_url}/adv/v0/auction/adverts"
+
+    @property
     def STATISTIC_WORDS(self) -> str:
         return f"{self.api_base_url}/adv/v1/stat/words"
 
