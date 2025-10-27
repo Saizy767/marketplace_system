@@ -21,6 +21,6 @@ class KeywordStat(Base):
 
     __table_args__ = (
         UniqueConstraint(
-            "advert_id", "date", "send_time", "keyword",
+            "advert_id", "date", "send_time", "info_keywords",
             name="uq_advert_date_keyword"),
     )

@@ -7,10 +7,14 @@ name = "marketplace_system"
 version = "0.1.0"
 description = "ETL system for marketplace API"
 dependencies = [
-    "apache-airflow>=2.10",
+    "apache-airflow>=2.11.0,<3.0.0",
     "requests",
     "pydantic-settings",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-mock", "requests-mock"]
+
+[tool.setuptools.packages]
+find = { namespaces = false }
+

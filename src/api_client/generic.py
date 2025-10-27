@@ -2,9 +2,9 @@ import requests
 from typing import Dict, Any, Optional, Type, TypeVar, Union
 from pydantic import BaseModel, ValidationError
 from .base import BaseApiClient
+from src.config.settings import Settings
 
 
-from src.config.settings import settings
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -13,10 +13,6 @@ T = TypeVar("T", bound=BaseModel)
 class GenericApiClient(BaseApiClient):
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
-        self.default_headers = {
-            "Authorization": f"{settings.api_key}",
-            "Content-Type": "application/json",
-        }
 
     def fetch_data(
         self,
@@ -25,7 +21,12 @@ class GenericApiClient(BaseApiClient):
         params: Optional[Dict[str, Any]] = None,
         response_model: Optional[Type[T]] = None,
     ) -> Union[T, Dict[str, Any], list]:
-        merged_headers = {**self.default_headers, **(headers or {})}
+        settings = Settings()
+        default_headers = {
+            "Authorization": f"{settings.api_key}"
+        }
+
+        merged_headers = {**default_headers, **(headers or {})}
 
         try:
             response = requests.get(
@@ -33,6 +34,7 @@ class GenericApiClient(BaseApiClient):
                 headers=merged_headers,
                 params=params or {},
                 timeout=self.timeout,
+                verify=False
             )
             response.raise_for_status()
             raw_data = response.json()

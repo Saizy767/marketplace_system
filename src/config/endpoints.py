@@ -1,11 +1,18 @@
 from dataclasses import dataclass
-from .settings import settings
+from .settings import Settings
 
 @dataclass(frozen=True)
 class ApiEndpoints:
-    API_BASE_URL: str = settings.api_base_url
+    api_base_url: str
+    api_key: str
 
-    STATISTIC_WORDS: str = f"{API_BASE_URL}/adv/v1/stat/words"
+    @property
+    def STATISTIC_WORDS(self) -> str:
+        return f"{self.api_base_url}/adv/v1/stat/words"
 
-
-endpoints = ApiEndpoints()
+def get_endpoints() -> ApiEndpoints:
+    settings = Settings()
+    return ApiEndpoints(
+        api_base_url=settings.api_base_url,
+        api_key=settings.api_key,
+    )

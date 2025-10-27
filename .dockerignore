@@ -1,40 +1,24 @@
-# Virtual environments
+.git
+.gitignore
 venv/
-.env
-__pycache__/
-*.pyc
+**/__pycache__/
+**/*.pyc
 .DS_Store
 *.egg-info/
 *.egg
 build/
 dist/
-
-# Airflow
 airflow.db
 logs/
 simple_auth_manager_passwords.json.generated
-
-# IDE
-.vscode/
-.idea/
-
-# Airflow config (локальный)
 airflow.cfg
 webserver_config.py
-airflow_home/
-
-# Docker
 docker-compose.override.yml
-
-# Python artifacts
 .pytest_cache/
 .coverage
 htmlcov/
 .mypy_cache/
-
-# Logs & temp
 *.log
 *.tmp
-
-# Vault secrets
-vault/write_secrets.sh
+.standalone_admin_password.txt
+airflow_home/

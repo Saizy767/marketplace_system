@@ -1,4 +1,5 @@
-from datetime import datetime
+import pendulum
+from datetime import time as dt_time
 from typing import Any, List, Dict
 from src.transformers.base import BaseTransformer
 from src.schemas.api_schemas.stats_keywords import StatResponse
@@ -8,12 +9,21 @@ class KeywordStatsTransformer(BaseTransformer):
         if not isinstance(data, StatResponse):
             raise TypeError(f"Expected StatResponse, got {type(data).__name__}")
 
-        advert_id = context.get("advert_id")
+        dag_run_conf = context.get("dag_run", {}).conf or {}
+        advert_id = dag_run_conf.get("advert_id")
         if not advert_id:
             raise ValueError("Missing required context: 'advert_id'")
 
         logical_end = context["data_interval_end"]
-        send_time = logical_end.time().replace(second=0, microsecond=0)
+        if hasattr(logical_end, 'time'):
+            send_time_obj = logical_end.time()
+        else:
+            send_time_obj = logical_end
+
+        if isinstance(send_time_obj, (dt_time, pendulum.Time)):
+            send_time_str = send_time_obj.strftime("%H:%M")
+        else:
+            send_time_str = str(send_time_obj)
 
         records_by_date = {}
 
@@ -38,7 +48,7 @@ class KeywordStatsTransformer(BaseTransformer):
             result.append({
                 "advert_id": str(advert_id),
                 "date": date,
-                "send_time": send_time,
+                "send_time": send_time_str,
                 "info_keywords": keywords_dict,
             })
 
