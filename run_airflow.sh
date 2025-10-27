@@ -74,13 +74,5 @@ docker exec "$CONTAINER_NAME" \
     # Раскомментируйте, если у вас есть пароль:
     # --conn-password "ваш_пароль"
 
-# === 8. Вывод логина и пароля Airflow ===
-echo ""
-echo "🔑 Airflow Admin Credentials:"
-echo "   Login:    admin"
-ADMIN_PASSWORD=$(docker exec "$CONTAINER_NAME" cat /home/airflow/.standalone_admin_password.txt 2>/dev/null || sleep 40)
-ADMIN_PASSWORD=$(docker exec "$CONTAINER_NAME" cat /home/airflow/.standalone_admin_password.txt 2>/dev/null || echo "⚠️  Файл с паролем не найден (возможно, Airflow ещё не завершил инициализацию)")
-
-echo "   Password: $ADMIN_PASSWORD"
 echo ""
 echo "✅ Airflow запущен! Откройте http://localhost:8080"
