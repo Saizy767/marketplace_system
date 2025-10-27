@@ -73,6 +73,5 @@ docker exec "$CONTAINER_NAME" \
     --conn-login "saizy"
     # Раскомментируйте, если у вас есть пароль:
     # --conn-password "ваш_пароль"
-
 echo ""
 echo "✅ Airflow запущен! Откройте http://localhost:8080"

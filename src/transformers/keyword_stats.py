@@ -1,5 +1,6 @@
 import pendulum
-from datetime import time as dt_time
+from datetime import (timedelta,
+                      time as dt_time)
 from typing import Any, List, Dict
 from src.transformers.base import BaseTransformer
 from src.schemas.api_schemas.stats_keywords import StatResponse
@@ -20,10 +21,12 @@ class KeywordStatsTransformer(BaseTransformer):
         else:
             send_time_obj = logical_end
 
+        logical_end_plus_3 = logical_end + timedelta(hours=3)
+
         if isinstance(send_time_obj, (dt_time, pendulum.Time)):
-            send_time_str = send_time_obj.strftime("%H:%M")
+            send_time_str = logical_end_plus_3.strftime("%H:%M")
         else:
-            send_time_str = str(send_time_obj)
+            send_time_str = str(logical_end_plus_3)
 
         records_by_date = {}
 
