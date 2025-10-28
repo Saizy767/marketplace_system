@@ -5,7 +5,6 @@ from src.schemas.api_schemas.active_adverts import ActiveAdvertsResponse
 
 
 class FetchActiveAdvertsOperator(BaseOperator):
-
     def execute(self, context):
         client = GenericApiClient(timeout=30)
         url = get_endpoints().ACTIVE_ADVERTS

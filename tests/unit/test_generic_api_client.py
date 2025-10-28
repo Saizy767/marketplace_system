@@ -3,6 +3,13 @@ from unittest.mock import Mock
 import requests
 from src.api_client.generic import GenericApiClient
 from src.schemas.api_schemas.stats_keywords import StatResponse
+from unittest import mock
+
+with mock.patch("airflow.models.Variable.get") as mock_get:
+    mock_get.side_effect = lambda key, default=None: {
+        "API_KEY": "test-api-key",
+        "API_BASE_URL": "https://api.test.com",
+    }.get(key, default)
 
 
 def test_fetch_data_valid_response_with_model(mocker):
