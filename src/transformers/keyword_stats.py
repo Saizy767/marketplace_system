@@ -1,11 +1,19 @@
 import pendulum
-from datetime import (timedelta,
-                      time as dt_time)
+from datetime import (timedelta, time as dt_time)
 from typing import Any, List, Dict
 from src.transformers.base import BaseTransformer
 from src.schemas.api_schemas.stats_keywords import StatResponse
 
 class KeywordStatsTransformer(BaseTransformer):
+    """
+    Трансформер данных статистики ключевых слов из API в формат для загрузки в БД.
+    - Группирует записи по дате.
+    - Агрегирует данные по каждому ключевому слову.
+    - Извлекает `advert_id` из `dag_run.conf`.
+    - Формирует `send_time` как время окончания интервала DAG + 3 часа,
+      сохраняя только часы и минуты в формате 'HH:MM'.
+    - Возвращает список записей с полями: advert_id, date, send_time, info_keywords (JSONB).
+    """
     def transform(self, data: Any, **context) -> List[Dict[str, Any]]:
         if not isinstance(data, StatResponse):
             raise TypeError(f"Expected StatResponse, got {type(data).__name__}")

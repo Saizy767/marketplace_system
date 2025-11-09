@@ -3,6 +3,10 @@ from .settings import Settings
 
 @dataclass(frozen=True)
 class ApiEndpoints:
+    """
+    Хранит URL-адреса эндпоинтов внешнего API.
+    Не содержит секретов — api_key используется только для отладки/логгирования.
+    """
     api_base_url: str
     api_key: str
 

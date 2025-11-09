@@ -2,16 +2,18 @@ from sqlalchemy import (
     Column, 
     Integer, 
     String, 
-    Float, 
     Date, 
-    UniqueConstraint,
+    Index,
     Time)
-from sqlalchemy.ext.declarative import declarative_base
+from src.models.base import Base
 from sqlalchemy.dialects.postgresql import JSONB 
 
-Base = declarative_base()
 
 class KeywordStat(Base):
+    """
+    ORM-модель для таблицы keyword_stats в PostgreSQL.
+    Хранит агрегированную статистику по ключевым словам для рекламных кампаний.
+    """
     __tablename__ = "keyword_stats"
     id = Column(Integer, primary_key=True, autoincrement=True)
     advert_id = Column(String, nullable=False, index=True)
@@ -20,7 +22,7 @@ class KeywordStat(Base):
     info_keywords = Column(JSONB, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint(
-            "advert_id", "date", "send_time", "info_keywords",
-            name="uq_advert_date_keyword"),
+        Index("uq_advert_date_keyword",
+              "advert_id", "date", "send_time",
+              unique=True),
     )

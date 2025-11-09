@@ -5,6 +5,11 @@ from pydantic import BaseModel
 T = TypeVar("T", bound=BaseModel)
 
 class BaseApiClient(ABC, Generic[T]):
+    """
+    Абстрактный базовый класс для клиентов API.
+    Обеспечивает единообразный интерфейс для получения и, при необходимости,
+    валидации данных из внешних источников с использованием Pydantic.
+    """
     @abstractmethod
     def fetch_data(
         self,
@@ -13,9 +18,4 @@ class BaseApiClient(ABC, Generic[T]):
         params: Optional[Dict[str, Any]] = None,
         response_model: Optional[Type[T]] = None,
     ) -> T | Dict[str, Any]:
-        """
-        Fetches and optionally validates data using a Pydantic model.
-        If response_model is provided, returns validated Pydantic instance.
-        Otherwise, returns raw dict.
-        """
         pass

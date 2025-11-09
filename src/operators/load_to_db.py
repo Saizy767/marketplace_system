@@ -2,6 +2,11 @@ from airflow.models.baseoperator import BaseOperator
 from src.loaders.base import BaseLoader
 
 class LoadToDbOperator(BaseOperator):
+    """
+    Airflow-оператор для загрузки преобразованных данных в СУБД.
+    Извлекает записи из XCom (task_id='transform_keywords') и передаёт их
+    в инстанс загрузчика, реализующего BaseLoader.
+    """
     def __init__(self, loader: BaseLoader, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loader = loader

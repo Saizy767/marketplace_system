@@ -18,3 +18,7 @@ dev = ["pytest", "pytest-mock", "requests-mock"]
 [tool.setuptools.packages]
 find = { namespaces = false }
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

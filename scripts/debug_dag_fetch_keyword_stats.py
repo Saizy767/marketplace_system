@@ -1,4 +1,4 @@
-from src.config.endpoints import endpoints
+from src.config.endpoints import ApiEndpoints
 from src.api_client.generic import GenericApiClient
 from src.schemas.api_schemas.stats_keywords import StatResponse
 from src.transformers.keyword_stats import KeywordStatsTransformer
@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 advert_id = "29441288"
 start_date = datetime(2025, 10, 23, 0, 0, 0, tzinfo=timezone.utc)
 end_date = datetime(2025, 10, 24, 0, 0, 0, tzinfo=timezone.utc)
+
+endpoints = ApiEndpoints()
 
 print("🔍 1. Fetch: Запрос к API...")
 client = GenericApiClient(timeout=30)

@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings
 from airflow.models import Variable
 
 class Settings(BaseSettings):
+    """
+    Класс для получения конфигурационных параметров из Airflow Variables.
+    """
     @property
     def api_key(self) -> str:
         return Variable.get("API_KEY")

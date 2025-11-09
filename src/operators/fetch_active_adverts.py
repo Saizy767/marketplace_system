@@ -5,6 +5,11 @@ from src.schemas.api_schemas.active_adverts import ActiveAdvertsResponse
 
 
 class FetchActiveAdvertsOperator(BaseOperator):
+    """
+    Airflow-оператор для получения списка активных рекламных кампаний из внешнего API.
+    Фильтрует кампании по статусу 9 (активные) и возвращает список их advert_id.
+    Использует GenericApiClient и Pydantic-модель ActiveAdvertsResponse для валидации.
+    """
     def execute(self, context):
         client = GenericApiClient(timeout=30)
         url = get_endpoints().ACTIVE_ADVERTS

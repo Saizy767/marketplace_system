@@ -5,12 +5,13 @@ from .base import BaseApiClient
 from src.config.settings import Settings
 
 
-
-
 T = TypeVar("T", bound=BaseModel)
 
 
 class GenericApiClient(BaseApiClient):
+    """
+    Универсальный клиент для выполнения HTTP GET-запросов к внешнему API.
+    """
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
 
@@ -21,6 +22,25 @@ class GenericApiClient(BaseApiClient):
         params: Optional[Dict[str, Any]] = None,
         response_model: Optional[Type[T]] = None,
     ) -> Union[T, Dict[str, Any], list]:
+        """
+        Выполняет GET-запрос к указанному URL и возвращает данные.
+        
+        Параметры:
+        - url: полный URL эндпоинта
+        - headers: дополнительные HTTP-заголовки (сливаются с Authorization)
+        - params: query-параметры
+        - response_model: Pydantic-модель для валидации и парсинга JSON
+        
+        Возвращает:
+        - Экземпляр Pydantic-модели T — если response_model указан и валидация успешна.
+        - dict или list — если response_model не указан (сырой JSON).
+        
+        В случае ошибки выбрасывает RuntimeError с понятным сообщением.
+
+        Доработки:
+        1) Создать кастомные исключения
+        2) При временной ошибке (503) запрос не повторяется
+        """
         settings = Settings()
         default_headers = {
             "Authorization": f"{settings.api_key}"
@@ -33,8 +53,7 @@ class GenericApiClient(BaseApiClient):
                 url=url,
                 headers=merged_headers,
                 params=params or {},
-                timeout=self.timeout,
-                verify=False
+                timeout=self.timeout
             )
             response.raise_for_status()
             raw_data = response.json()

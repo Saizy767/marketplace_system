@@ -4,6 +4,11 @@ from src.schemas.api_schemas.stats_keywords import StatResponse
 import time
 
 class ApiFetchOperator(BaseOperator):
+    """
+    Кастомный Airflow-оператор для выполнения GET-запроса к внешнему API,
+    валидации ответа через Pydantic-модель StatResponse и возврата сериализованных данных.
+    Поддерживает шаблонизацию полей url и params через Airflow context.
+    """
     template_fields = ("url", "params")
 
     def __init__(

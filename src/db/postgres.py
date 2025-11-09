@@ -4,6 +4,9 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from src.db.base import BaseEngineManager
 
 class PostgresEngineManager(BaseEngineManager):
+    """
+    Реализация менеджера подключений к PostgreSQL через Airflow Connection.
+    """
     def __init__(self, conn_id: str = "postgres_default"):
         self.conn_id = conn_id
         self._engine: Engine | None = None
