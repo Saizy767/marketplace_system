@@ -43,7 +43,7 @@ class KeywordStatsTransformer(BaseTransformer):
                 continue
 
             stat_date = stat.begin.date()
-
+            
             if stat_date not in records_by_date:
                 records_by_date[stat_date] = {}
 

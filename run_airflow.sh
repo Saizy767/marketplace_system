@@ -1,4 +1,3 @@
-#!/bin/bash
 set -e
 
 IMAGE_NAME="marketplace_airflow"
@@ -71,7 +70,5 @@ docker exec "$CONTAINER_NAME" \
     --conn-port "5432" \
     --conn-schema "postgres" \
     --conn-login "saizy"
-    # Раскомментируйте, если у вас есть пароль:
-    # --conn-password "ваш_пароль"
 echo ""
 echo "✅ Airflow запущен! Откройте http://localhost:8080"

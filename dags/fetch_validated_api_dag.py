@@ -25,10 +25,11 @@ dag = DAG(
     dag_id="fetch_keywords_from_api",
     default_args=default_args,
     description="Fetch keywords data from external API using GenericApiClient",
-    schedule="*/5 * * * *", #"@hourly",
+    schedule=None,
     start_date=START_DATE,
     catchup=False,
-    tags=["api", "etl", "keywords", "stats"]
+    tags=["api", "etl", "keywords", "stats"],
+    max_active_runs=3,
 )
 
 # === 1. Extract ===
@@ -36,6 +37,7 @@ def _fetch_keywords_callable(**context):
 
     dag_run_conf = context.get("dag_run", {}).conf or {}
     advert_id = dag_run_conf.get("advert_id")
+
     if not advert_id:
         raise AirflowFailException("❌ 'advert_id' отсутствует")
 

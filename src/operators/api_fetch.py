@@ -7,7 +7,6 @@ class ApiFetchOperator(BaseOperator):
     """
     Кастомный Airflow-оператор для выполнения GET-запроса к внешнему API,
     валидации ответа через Pydantic-модель StatResponse и возврата сериализованных данных.
-    Поддерживает шаблонизацию полей url и params через Airflow context.
     """
     template_fields = ("url", "params")
 

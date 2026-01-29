@@ -23,20 +23,6 @@ class GenericApiClient(BaseApiClient):
         response_model: Optional[Type[T]] = None,
     ) -> Union[T, Dict[str, Any], list]:
         """
-        Выполняет GET-запрос к указанному URL и возвращает данные.
-        
-        Параметры:
-        - url: полный URL эндпоинта
-        - headers: дополнительные HTTP-заголовки (сливаются с Authorization)
-        - params: query-параметры
-        - response_model: Pydantic-модель для валидации и парсинга JSON
-        
-        Возвращает:
-        - Экземпляр Pydantic-модели T — если response_model указан и валидация успешна.
-        - dict или list — если response_model не указан (сырой JSON).
-        
-        В случае ошибки выбрасывает RuntimeError с понятным сообщением.
-
         Доработки:
         1) Создать кастомные исключения
         2) При временной ошибке (503) запрос не повторяется
