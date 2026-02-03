@@ -8,13 +8,13 @@ class Subject(BaseModel):
     name: str
 
 
-class Bids(BaseModel):
+class BidsKopecks(BaseModel):
     recommendations: int
     search: int
 
 
 class NmSetting(BaseModel):
-    bids: Bids
+    bids_kopecks: BidsKopecks
     nm_id: int
     subject: Subject
 
@@ -48,3 +48,8 @@ class Advert(BaseModel):
 
 class ActiveAdvertsResponse(BaseModel):
     adverts: List[Advert]
+
+
+class AdvertNmMapping(BaseModel):
+    advert_id: int
+    nm_id: int

@@ -1,7 +1,7 @@
 import pytest
 import requests_mock
 from src.api_client.generic import GenericApiClient
-from src.schemas.api_schemas.stats_keywords import StatResponse
+from src.schemas.api_schemas.stats_keywords import StatsResponse
 from src.config import endpoints
 
 # УБЕРИТЕ импорт Settings и settings = Settings()
@@ -47,7 +47,7 @@ def test_full_api_call_mocked():
         response = client.fetch_data(
             url=url,
             params={"id": "123", "from": "2025-10-01", "to": "2025-10-02"},
-            response_model=StatResponse
+            response_model=StatsResponse
         )
-        assert isinstance(response, StatResponse)
+        assert isinstance(response, StatsResponse)
         assert len(response.stat) == 1

@@ -1,7 +1,7 @@
 from src.config.endpoints import ApiEndpoints
 from src.api_client.generic import GenericApiClient
-from src.schemas.api_schemas.stats_keywords import StatResponse
-from src.transformers.keyword_stats import KeywordStatsTransformer
+from src.schemas.api_schemas.stats_keywords import StatsResponse
+from src.transformers.keyword_stat import KeywordStatsTransformer
 from src.loaders.postgres_keyword_stats import PostgresKeywordStatsLoader
 from src.db.postgres import PostgresEngineManager
 from datetime import datetime, timezone
@@ -23,7 +23,7 @@ try:
             "from": start_date,
             "to": end_date,
         },
-        response_model=StatResponse,
+        response_model=StatsResponse,
     )
     print(f"✅ Получено {len(raw_response.stat)} дней")
 except Exception as e:

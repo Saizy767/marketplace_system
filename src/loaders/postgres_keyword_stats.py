@@ -2,7 +2,8 @@ from typing import List, Dict, Any
 from sqlalchemy.dialects.postgresql import insert
 from src.loaders.base import BaseLoader
 from src.db.base import BaseEngineManager
-from src.models.keyword_stat import KeywordStat, Base
+from src.tables.keyword_stat import KeywordStat
+from src.tables.base import Base
 
 
 class PostgresKeywordStatsLoader(BaseLoader):
@@ -11,7 +12,7 @@ class PostgresKeywordStatsLoader(BaseLoader):
     Таблица создаётся автоматически при инициализации, если не существует.
     """
 
-    def __init__(self, engine_manager: BaseEngineManager, table_name: str = "keyword_stats"):
+    def __init__(self, engine_manager: BaseEngineManager):
         self.engine_manager = engine_manager
         engine = self.engine_manager.get_engine()
         Base.metadata.create_all(engine, tables=[KeywordStat.__table__], checkfirst=True)
@@ -24,10 +25,20 @@ class PostgresKeywordStatsLoader(BaseLoader):
         engine = self.engine_manager.get_engine()
         table = KeywordStat.__table__
 
+
+        CHUNK = 1000
+        total = 0
         with engine.begin() as conn:
-            stmt = insert(table).values(records)
-            stmt = stmt.on_conflict_do_nothing(
-                index_elements=["advert_id", "date", "send_time"]
-            )
-            result = conn.execute(stmt)
-            return result.rowcount
+            for i in range(0, len(records), CHUNK):
+                chunk = records[i:i+CHUNK]
+                stmt = insert(table).values(chunk)
+                stmt = stmt.on_conflict_do_nothing(
+                    index_elements=["advert_id",
+                                    "nm_id",
+                                    "start_date",
+                                    "send_time",
+                                    "norm_query"]
+                                    )
+                result = conn.execute(stmt)
+                total += (result.rowcount or 0)
+        return total

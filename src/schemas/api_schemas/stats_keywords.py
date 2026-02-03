@@ -1,29 +1,25 @@
+from typing import List
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
 
-class StatRecord(BaseModel):
-    end: datetime
-    keyword: str
-    campaignName: str
-    begin: datetime
-    views: int
-    advertId: int
+
+class StatItem(BaseModel):
+    atbs: int
+    avg_pos: float
     clicks: int
-    ctr: float
     cpc: float
-    duration: int
-    sum: float
-    frq: float
+    cpm: float
+    ctr: float
+    norm_query: str
+    orders: int
+    shks: int
+    views: int
 
-class WordsSection(BaseModel):
-    phrase: List[str]
-    strong: List[str]
-    excluded: List[str]
-    pluse: List[str]
-    keywords: List[dict]
 
-class StatResponse(BaseModel):
-    stat: List[StatRecord]
-    words: Optional[WordsSection] = None
-    fixed: Optional[bool] = None
+class AdvertStat(BaseModel):
+    advert_id: int
+    nm_id: int
+    stats: List[StatItem]
+
+
+class StatsResponse(BaseModel):
+    stats: List[AdvertStat]

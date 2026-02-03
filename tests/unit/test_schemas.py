@@ -1,4 +1,4 @@
-from src.schemas.api_schemas.stats_keywords import StatResponse
+from src.schemas.api_schemas.stats_keywords import StatsResponse
 import datetime
 
 def test_keyword_list_response_valid():
@@ -20,7 +20,7 @@ def test_keyword_list_response_valid():
             }
         ]
     }
-    model = StatResponse.model_validate(data)
+    model = StatsResponse.model_validate(data)
     assert len(model.stat) == 1
     assert model.stat[0].begin.date() == datetime.date(2025, 10, 14)
     assert model.stat[0].keyword == "телефон"

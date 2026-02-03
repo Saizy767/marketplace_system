@@ -1,12 +1,12 @@
 from airflow.models import BaseOperator
 from src.api_client.generic import GenericApiClient
-from src.schemas.api_schemas.stats_keywords import StatResponse
+from src.schemas.api_schemas.stats_keywords import StatsResponse
 import time
 
 class ApiFetchOperator(BaseOperator):
     """
     Кастомный Airflow-оператор для выполнения GET-запроса к внешнему API,
-    валидации ответа через Pydantic-модель StatResponse и возврата сериализованных данных.
+    валидации ответа через Pydantic-модель StatsResponse и возврата сериализованных данных.
     """
     template_fields = ("url", "params")
 
@@ -31,10 +31,10 @@ class ApiFetchOperator(BaseOperator):
             data = client.fetch_data(
                 url=self.url,
                 params=self.params,
-                response_model=StatResponse,
+                response_model=StatsResponse,
             )
             duration = time.time() - start_time
-            keyword_count = len(data.stat)
+            keyword_count = len(data.stats)
             self.log.info(
                 f"✅ Successfully fetched and validated {keyword_count} keyword records "
                 f"in {duration:.2f} seconds"

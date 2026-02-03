@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock
 import requests
 from src.api_client.generic import GenericApiClient
-from src.schemas.api_schemas.stats_keywords import StatResponse
+from src.schemas.api_schemas.stats_keywords import StatsResponse
 from unittest import mock
 
 with mock.patch("airflow.models.Variable.get") as mock_get:
@@ -37,9 +37,9 @@ def test_fetch_data_valid_response_with_model(mocker):
     client = GenericApiClient(timeout=5)
     result = client.fetch_data(
         url="https://api.example.com/test",
-        response_model=StatResponse
+        response_model=StatsResponse
     )
-    assert isinstance(result, StatResponse)
+    assert isinstance(result, StatsResponse)
     assert len(result.stat) == 1
     
 
