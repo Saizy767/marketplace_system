@@ -17,6 +17,10 @@ class ApiEndpoints:
     @property
     def STATISTIC_WORDS(self) -> str:
         return f"{self.api_base_url}/adv/v0/normquery/stats"
+    
+    @property
+    def ORDERS_LIST(self) -> str:
+        return f"{self.api_base_url}/api/v1/supplier/orders"
 
 def get_endpoints() -> ApiEndpoints:
     settings = Settings()

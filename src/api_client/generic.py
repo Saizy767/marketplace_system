@@ -3,6 +3,8 @@ from typing import Dict, Any, Optional, Type, TypeVar, Union
 from pydantic import BaseModel, ValidationError
 from .base import BaseApiClient
 from src.config.settings import Settings
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -14,6 +16,22 @@ class GenericApiClient(BaseApiClient):
     """
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
+        self.session = requests.Session()
+
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=4,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET", "POST"],
+            connect=3,
+            read=3,
+            redirect=False,
+        )
+
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+
 
     def fetch_data(
         self,
