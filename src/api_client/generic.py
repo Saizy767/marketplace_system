@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, Optional, Type, TypeVar, Union
+from typing import Dict, Any, Optional, Type, TypeVar, Union, get_origin, get_args
 from pydantic import BaseModel, ValidationError
 from .base import BaseApiClient
 from src.config.settings import Settings
@@ -46,14 +46,21 @@ class GenericApiClient(BaseApiClient):
         2) При временной ошибке (503) запрос не повторяется
         """
         settings = Settings()
+        # Ensure token has a scheme (Bearer) if not provided by Settings
+        api_key = settings.api_key or ""
+        if api_key.startswith("Bearer ") or api_key.startswith("Token "):
+            auth_value = api_key
+        else:
+            auth_value = f"Bearer {api_key}"
+
         default_headers = {
-            "Authorization": f"{settings.api_key}"
+            "Authorization": auth_value
         }
 
         merged_headers = {**default_headers, **(headers or {})}
 
         try:
-            response = requests.get(
+            response = self.session.get(
                 url=url,
                 headers=merged_headers,
                 params=params or {},
@@ -68,7 +75,21 @@ class GenericApiClient(BaseApiClient):
 
         if response_model:
             try:
-                return response_model.model_validate(raw_data)
+                origin = get_origin(response_model)
+                if origin is list:
+                    item_type = get_args(response_model)[0]
+                    if hasattr(item_type, "model_validate") and isinstance(raw_data, list):
+                        return [item_type.model_validate(item) for item in raw_data]
+                    return raw_data
+
+                # Handle Pydantic model classes (e.g. OrdersResponse)
+                if hasattr(response_model, "model_validate"):
+                    if isinstance(raw_data, list) and getattr(response_model, "model_fields", None) and "orders" in response_model.model_fields:
+                        raw_data = {"orders": raw_data}
+
+                    return response_model.model_validate(raw_data)
+
+                return raw_data
             except ValidationError as e:
                 raise RuntimeError(f"Response validation failed: {e}") from e
 
@@ -103,14 +124,20 @@ class GenericApiClient(BaseApiClient):
             Валидированный объект модели или сырые данные
         """
         settings = Settings()
+        api_key = settings.api_key or ""
+        if api_key.startswith("Bearer ") or api_key.startswith("Token "):
+            auth_value = api_key
+        else:
+            auth_value = f"Bearer {api_key}"
+
         default_headers = {
-            "Authorization": f"{settings.api_key}"
+            "Authorization": auth_value
         }
 
         merged_headers = {**default_headers, **(headers or {})}
 
         try:
-            response = requests.post(
+            response = self.session.post(
                 url=url,
                 headers=merged_headers,
                 params=params or {},

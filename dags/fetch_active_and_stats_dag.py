@@ -20,7 +20,7 @@ from src.schemas.api_schemas.active_adverts import Advert, AdvertNmMapping
 class DagRunContext:
     conf: Dict[str, Any]
 
-START_DATE = datetime(2025, 10, 1)
+START_DATE = datetime(2026, 2, 2)
 
 default_args = {
     "owner": "saizy",
