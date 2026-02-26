@@ -4,34 +4,33 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class Order(BaseModel):
-    date_release: Optional[datetime] = Field(None, alias="date")
-    lastChangeDate: Optional[datetime]
-    warehouseName: str
-    warehouseType: str
-    countryName: str
-    oblastOkrugName: str
-    regionName: str
-    supplierArticle: str
-    nmId: int
-    barcode: str
-    category: str
-    subject: str
-    brand: Optional[str] = None
-    techSize: str
-    incomeID: int
-    # API sometimes returns booleans here — normalize to strings
-    isSupply: Optional[str]
-    isRealization: Optional[str]
-    totalPrice: float
-    discountPercent: int
-    spp: float
-    finishedPrice: float
-    priceWithDisc: float
-    isCancel: Optional[bool] = None
-    cancelDate: Optional[datetime]
-    sticker: Optional[str]
-    gNumber: str
-    srid: str
+    date_release: Optional[datetime] = Field(None, alias="date", description="Дата и время заказа")
+    lastChangeDate: Optional[datetime] = Field(..., description="Дата и время обновления информации в сервисе")
+    warehouseName: str = Field(..., description="Склад отгрузки")
+    warehouseType: str = Field(..., description="Тип склада хранения товаров")
+    countryName: str = Field(..., description="Страна")
+    oblastOkrugName: str = Field(..., description="Округ")
+    regionName: str = Field(..., description="Регион")
+    supplierArticle: str = Field(..., description="Артикул продавца")
+    nmId: int = Field(..., description="Артикул WB")
+    barcode: str = Field(..., description="Баркод")
+    category: str = Field(..., description="Категория")
+    subject: str = Field(..., description="Предмет")
+    brand: Optional[str] = Field(None, description="Бренд")
+    techSize: str = Field(..., description="Размер товара")
+    incomeID: int = Field(..., description="Номер поставки")
+    isSupply: Optional[str] = Field(..., description="Договор поставки")
+    isRealization: Optional[str] = Field(..., description="Договор реализации")
+    totalPrice: float = Field(..., description="Цена без скидок")
+    discountPercent: int = Field(..., description="Скидка продавца, %")
+    spp: float = Field(..., description="Скидка WB, %")
+    finishedPrice: float = Field(..., description="Цена с учетом всех скидок, кроме суммы по WB Кошельку")
+    priceWithDisc: float = Field(..., description="Цена со скидкой продавца, в том числе со скидкой WB Клуба")
+    isCancel: Optional[bool] = Field(None, description="Отмена заказа")
+    cancelDate: Optional[datetime] = Field(..., description="Дата и время отмены заказа")
+    sticker: Optional[str] = Field(..., description="ID стикера")
+    gNumber: str = Field(..., description="ID корзины покупателя")
+    srid: str = Field(..., description="Уникальный ID заказа")
 
     model_config = {"populate_by_name": True, "extra": "ignore"}
 

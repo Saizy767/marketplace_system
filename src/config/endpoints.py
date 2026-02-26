@@ -22,11 +22,17 @@ class ApiEndpoints:
     @property
     def ORDERS_LIST(self) -> str:
         return f"{self.api_statistic_url}/api/v1/supplier/orders"
+    
+    @property
+    def SALES_FUNNEL(self) -> str:
+        return f"{self.api_seller_url}/api/analytics/v3/sales-funnel/products/history"
+
 
 def get_endpoints() -> ApiEndpoints:
     settings = Settings()
     return ApiEndpoints(
         api_base_url=settings.api_base_url,
         api_statistic_url=settings.api_statistic_url,
+        api_seller_url=settings.api_seller_url,
         api_key=settings.api_key,
     )

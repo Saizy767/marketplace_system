@@ -16,5 +16,9 @@ class Settings(BaseSettings):
     @property
     def api_statistic_url(self) -> str:
         return Variable.get("API_STATISTIC_URL")
+    
+    @property
+    def api_seller_url(self) -> str:
+        return Variable.get("API_SELLER_URL")
 
     model_config = {"extra": "ignore"}
