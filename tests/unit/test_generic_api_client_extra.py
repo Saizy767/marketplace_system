@@ -1,14 +1,16 @@
+"""
+Дополнительные проверки GenericApiClient, которые не поместились в основной тестовый файл.
+Проверяются заголовки авторизации, ошибки, валидация и поддержка списков.
+"""
+
 import pytest
-import requests
-from requests.exceptions import RequestException
 from src.api_client.generic import GenericApiClient
 from pydantic import BaseModel
 from src.config import settings
 
-# patch Airflow Variable via monkeypatch on Settings as in conftest
 
 def test_fetch_data_adds_bearer_header(requests_mock, monkeypatch):
-    # API key without scheme should be prefixed
+    # при отсутствии схемы токена добавляется префикс Bearer из настроек
     monkeypatch.setattr(settings.Variable, "get", lambda k: "secret123")
     url = "http://example.com/foobar"
     def matcher(request):
@@ -20,6 +22,7 @@ def test_fetch_data_adds_bearer_header(requests_mock, monkeypatch):
 
 
 def test_fetch_data_preserves_bearer_prefix(requests_mock, monkeypatch):
+    # если токен уже содержит 'Bearer', он не изменяется
     monkeypatch.setattr(settings.Variable, "get", lambda k: "Bearer xyz")
     url = "http://example.com/abc"
     def matcher(request):
@@ -31,6 +34,7 @@ def test_fetch_data_preserves_bearer_prefix(requests_mock, monkeypatch):
 
 
 def test_fetch_data_http_error_raises(requests_mock, monkeypatch):
+    # при HTTP-ошибке метод должен бросать RuntimeError
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     url = "http://example.com/err"
     requests_mock.get(url, status_code=500)
@@ -40,16 +44,17 @@ def test_fetch_data_http_error_raises(requests_mock, monkeypatch):
 
 
 def test_fetch_data_invalid_json(requests_mock, monkeypatch):
+    # некорректный JSON тоже рассматривается как ошибка запроса
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     url = "http://example.com/bad"
     requests_mock.get(url, text="not json")
     client = GenericApiClient()
-    # JSONDecodeError is a RequestException so first handler is triggered
     with pytest.raises(RuntimeError, match="HTTP request failed"):
         client.fetch_data(url=url)
 
 
 def test_fetch_data_validation_failure(requests_mock, monkeypatch):
+    # если модель валидации не проходит, бросаем RuntimeError
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     class Simple(BaseModel):
         x: int
@@ -61,6 +66,7 @@ def test_fetch_data_validation_failure(requests_mock, monkeypatch):
 
 
 def test_fetch_data_list_model_support(requests_mock, monkeypatch):
+    # поддержка response_model=list[Model]
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     class Item(BaseModel):
         name: str
@@ -72,10 +78,10 @@ def test_fetch_data_list_model_support(requests_mock, monkeypatch):
 
 
 def test_fetch_data_orders_special_case(requests_mock, monkeypatch):
+    # специальная логика для OrdersResponse, должна вернуть экземпляр класса
     from src.schemas.api_schemas.orders import OrdersResponse
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     url = "http://example.com/orders"
-    # provide a raw list of complete order dict, expects wrapper and validation
     record = {
         "date_release": "2025-01-01T00:00:00",
         "lastChangeDate": "2025-01-02T00:00:00",
@@ -111,6 +117,7 @@ def test_fetch_data_orders_special_case(requests_mock, monkeypatch):
 
 
 def test_post_data_validation_and_error(requests_mock, monkeypatch):
+    # POST-метод: сначала проверка валидации ответа, затем нормальная отправка
     monkeypatch.setattr(settings.Variable, "get", lambda k: "t")
     url = "http://example.com/post"
     requests_mock.post(url, json={"a": "a"})
@@ -119,7 +126,6 @@ def test_post_data_validation_and_error(requests_mock, monkeypatch):
     client = GenericApiClient()
     with pytest.raises(RuntimeError, match="Response validation failed"):
         client.post_data(url=url, json={"a": "a"}, response_model=Foo)
-    # also test header on post
     def matchreq(r):
         return r.headers.get("Authorization") == "Bearer t"
     requests_mock.post(url, additional_matcher=matchreq, json={"ok": True})

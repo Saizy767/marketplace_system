@@ -1,9 +1,15 @@
+"""
+Unit-тесты для класса Settings.
+Проверяют, что значения конфигурации читаются из Airflow Variable.
+"""
+
 from unittest import mock
 
 from src.config.settings import Settings
 
 
 def test_settings_reads_variables():
+    # мокаем вызов Variable.get, возвращая предопределённые значения
     with mock.patch("airflow.models.Variable.get") as mock_get:
         mock_get.side_effect = lambda key, default=None: {
             "API_KEY": "abc",

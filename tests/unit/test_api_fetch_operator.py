@@ -1,9 +1,15 @@
+"""
+Юнит‑тесты для ApiFetchOperator. Проверяется получение и валидация данных,
+а также поведение при ошибках.
+"""
+
 import pytest
 from src.operators.api_fetch import ApiFetchOperator
 from src.schemas.api_schemas.stats_keywords import StatsResponse
 
 
 def test_execute_returns_serialized_data(requests_mock):
+    # оператор возвращает распарсенный JSON без модификаций
     url = "http://example"
     requests_mock.get(url, json={"stat": []})
 
@@ -14,6 +20,7 @@ def test_execute_returns_serialized_data(requests_mock):
 
 
 def test_execute_validates_response(requests_mock):
+    # успешная валидация через StatsResponse
     url = "http://example"
     payload = {
         "stat": [
@@ -47,6 +54,7 @@ def test_execute_validates_response(requests_mock):
 
 
 def test_execute_validation_error(requests_mock):
+    # если модель не валидируется, выбрасываем Exception
     url = "http://example"
     requests_mock.get(url, json={"stat": [{"advert_id": 1}]})
 
@@ -56,6 +64,7 @@ def test_execute_validation_error(requests_mock):
 
 
 def test_execute_propagates_error(requests_mock):
+    # HTTP-ошибка трансформируется в RuntimeError
     url = "http://example"
     requests_mock.get(url, status_code=500)
 

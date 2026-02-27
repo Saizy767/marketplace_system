@@ -1,6 +1,9 @@
-from unittest.mock import Mock
+"""
+Юнит‑тесты загрузчиков в базу данных. Меняются менеджер/движок на заглушки,
+чтобы подсчитать исполненные SQL-вызовы.
+"""
 
-# Предотвращаем вызов SQLAlchemy.create_all в тестах — делаем его пустышкой
+from unittest.mock import Mock
 import src.tables.base as tables_base
 tables_base.Base.metadata.create_all = lambda *a, **k: None
 
@@ -39,31 +42,32 @@ class DummyManager:
 
 
 def test_keyword_stats_loader_empty():
+    # пустой список не приводит к запросам и возвращает 0
     loader = PostgresKeywordStatsLoader(engine_manager=DummyManager())
     assert loader.load([]) == 0
 
 
 def test_keyword_stats_loader_basic():
+    # базовая загрузка нескольких записей должна выполнить по крайней мере один запрос
     manager = DummyManager()
     loader = PostgresKeywordStatsLoader(engine_manager=manager)
     records = [{"advert_id": 1}, {"advert_id": 2}]
     count = loader.load(records)
-    # loader may return DB rowcount or fall back to len(chunk); accept either
     assert count >= 1
-    # ensure execute called with something for each chunk
     assert len(manager.engine.conn.executed) >= 1
 
 
 def test_sales_funnel_loader_empty():
+    # аналогично: при пустом входе возвращаем 0
     loader = PostgresSalesFunnelLoader(engine_manager=DummyManager())
     assert loader.load([]) == 0
 
 
 def test_sales_funnel_loader_basic():
+    # загрузчик для воронки должен вставить один тестовый объект
     manager = DummyManager()
     loader = PostgresSalesFunnelLoader(engine_manager=manager)
     records = []
-    # the SalesFunnel loader expects objects with __dict__, we can use mocks
     rec = Mock()
     rec.__dict__ = {"nmId": 1}
     records.append(rec)
@@ -73,15 +77,16 @@ def test_sales_funnel_loader_basic():
 
 
 def test_orders_loader_empty():
+    # пустой список заказов -> 0
     loader = PostgresOrdersLoader(engine_manager=DummyManager())
     assert loader.load([]) == 0
 
 
 def test_orders_loader_basic():
+    # проверяем, что при списке заказов выполняются SQL-вызовы
     manager = DummyManager()
     loader = PostgresOrdersLoader(engine_manager=manager)
     recs = [{"srid": 1}, {"srid": 2}]
     result = loader.load(recs)
-    # Accept DB rowcount or fallback to len(chunk)
     assert result >= 1
     assert len(manager.engine.conn.executed) >= 1

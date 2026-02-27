@@ -1,3 +1,8 @@
+"""
+Тесты преобразователя KeywordStatsTransformer; охватывают обычный путь,
+проверку типов, отсутствие контекста, и поведение в граничных случаях.
+"""
+
 import pytest
 from datetime import datetime, timedelta, timezone
 from src.transformers.keyword_stat import KeywordStatsTransformer
@@ -6,7 +11,6 @@ from src.schemas.api_schemas.active_adverts import AdvertNmMapping
 
 
 def make_stats_response():
-    # соберём простую структуру с одним advert и двумя stat items
     item1 = StatItem(
         atbs=0, avg_pos=1.0, clicks=1, cpc=2.0, cpm=3.0, ctr=0.1,
         norm_query="q1", orders=0, shks=0, views=10, spend=100
@@ -16,6 +20,7 @@ def make_stats_response():
 
 
 def test_transform_success(monkeypatch):
+    # базовый рабочий сценарий: один элемент, дата/время, правильный dag_run
     data = make_stats_response()
     transformer = KeywordStatsTransformer()
     start = datetime(2025, 1, 1, 0, 0, 0)
@@ -39,12 +44,14 @@ def test_transform_success(monkeypatch):
 
 
 def test_transform_wrong_type():
+    # передано не то, что ожидается (не StatsResponse) -> TypeError
     transformer = KeywordStatsTransformer()
     with pytest.raises(TypeError):
         transformer.transform({})
 
 
 def test_transform_missing_adverts_context():
+    # отсутствует ключ 'adverts' в dag_run.conf -> ValueError
     transformer = KeywordStatsTransformer()
     data = make_stats_response()
     with pytest.raises(ValueError, match="Missing required context: 'adverts'"):
@@ -57,6 +64,7 @@ def test_transform_missing_adverts_context():
 
 
 def test_transform_missing_interval_start():
+    # не передан обязательный параметр data_interval_start -> ValueError
     transformer = KeywordStatsTransformer()
     data = make_stats_response()
     with pytest.raises(ValueError, match="Missing 'data_interval_start'"):
@@ -68,7 +76,7 @@ def test_transform_missing_interval_start():
 
 
 def test_transform_dag_run_object_and_non_datetime_end():
-    # DagRun provided as object with conf attr
+    # поддержка случая, когда dag_run -- объект, а data_interval_end не datetime
     class DummyDagRun:
         def __init__(self, conf):
             self.conf = conf
@@ -76,8 +84,6 @@ def test_transform_dag_run_object_and_non_datetime_end():
     data = make_stats_response()
     start = datetime(2025, 1, 1)
     logical_end = DummyDagRun(datetime(2025, 1, 1, 5, 0, 0))
-    # we'll provide logical_end not used since transform expects data_interval_end directly
-    # we bypass by crafting context where logical_end is custom that supports +
     class DummyEnd:
         def __init__(self, dt):
             self.dt = dt
@@ -93,12 +99,12 @@ def test_transform_dag_run_object_and_non_datetime_end():
         data_interval_end=end,
         dag_run=dag_run,
     )
-    assert result  # no exception, send_time from str()
+    assert result
 
 
 def test_transform_empty_stats_logs_warning():
+    # если в advert нет статистик, возвращается [], а в лог пишется warning
     transformer = KeywordStatsTransformer()
-    # create response with empty stats
     empty_ad = AdvertStat(advert_id=5, nm_id=6, stats=[])
     data = StatsResponse(stat=[empty_ad])
     class DummyLog:
@@ -123,5 +129,4 @@ def test_transform_empty_stats_logs_warning():
         dag_run=dag_run,
     )
     assert res == []
-    # expect at least one warning about EMPTY stats
     assert any("EMPTY stats" in msg for lvl,msg in ti.log.records if lvl=="warning")

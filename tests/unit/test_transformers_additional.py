@@ -1,3 +1,8 @@
+"""
+Дополнительные тесты для трансформеров OrdersTransformer и SalesFunnelTransformer,
+покрывают успешные варианты, ошибки типов и поддержку моделей.
+"""
+
 import pytest
 from datetime import datetime
 
@@ -67,7 +72,7 @@ def test_orders_transformer_string_dates():
            "isSupply": True, "isRealization": False,
            "totalPrice": 10.0, "discountPercent": 5,
            "spp": 1.0, "finishedPrice": 8.0, "priceWithDisc": 7.0,
-           "cancelDate": "0001-01-01T00:00:00",  # zero date should turn None
+           "cancelDate": "0001-01-01T00:00:00",  # нулевая дата должна стать None
            "sticker": "S", "gNumber": "G", "srid": "SR"}
     out = transformer.transform([rec])
     assert out[0]["date_release"] == datetime(2025,1,2,3,4,5).date()
@@ -109,12 +114,12 @@ def test_orders_transformer_accepts_model_instance():
     order_obj = Order(**rec)
     output = transformer.transform([order_obj])
     assert output[0]["srid"] == "SR"
-    # ensure date fields still converted
+    # убедиться, что поля даты всё ещё конвертируются
     assert output[0]["date_release"] == dt.date()
 
 
 def make_sales_item():
-    # build a SalesFunnel object
+    # создаём объект SalesFunnel
     prod = Product(
         nmId=10,
         title="T",
@@ -153,7 +158,7 @@ def test_sales_funnel_transformer_success():
 def test_sales_funnel_transformer_accepts_dict():
     transformer = SalesFunnelTransformer()
     sf = make_sales_item()
-    # convert to dict and ensure transform works same way
+    # преобразуем в словарь и проверяем, что трансформация аналогична
     rec_dict = sf.model_dump(mode="json")
     out = transformer.transform([rec_dict])
     assert out[0]["nmId"] == 10

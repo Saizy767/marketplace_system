@@ -1,3 +1,7 @@
+"""
+Юнит-тесты для валидации Pydantic-схем, используемых в API.
+"""
+
 from src.schemas.api_schemas.stats_keywords import (
     StatsResponse,
     AdvertStat,
@@ -91,14 +95,20 @@ def test_active_adverts_response_parsing():
     assert len(model.adverts) == 1
 
     advert = model.adverts[0]
+    # top‑level advert model
+    assert isinstance(advert, Advert)
     assert advert.status == 9
     assert isinstance(advert.settings, Settings)
     assert isinstance(advert.settings.placements, Placements)
     assert isinstance(advert.timestamps, Timestamps)
+
+    # nm_settings list and nested model types
     assert isinstance(advert.nm_settings, list)
-    assert advert.nm_settings[0].nm_id == 111
-    assert isinstance(advert.nm_settings[0].subject, Subject)
-    assert isinstance(advert.nm_settings[0].bids_kopecks, BidsKopecks)
+    nm_setting = advert.nm_settings[0]
+    assert isinstance(nm_setting, NmSetting)
+    assert nm_setting.nm_id == 111
+    assert isinstance(nm_setting.subject, Subject)
+    assert isinstance(nm_setting.bids_kopecks, BidsKopecks)
 
 
 def test_timestamps_accepts_future_deleted_and_started_none():
@@ -143,11 +153,11 @@ def test_order_schema_date_and_bool_coercion():
         "srid": "SR",
     }
     order = Order.model_validate(payload)
-    # wrapped date parsed correctly
+    # вложенная дата корректно разбирается
     assert order.date_release.year == 2025
-    # zero cancel date -> None
+    # нулевая cancelDate превращается в None
     assert order.cancelDate is None
-    # booleans coerce to strings
+    # булевы значения приводятся к строкам
     assert order.isSupply == "True"
     assert order.isRealization == "False"
 
