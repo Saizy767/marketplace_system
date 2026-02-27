@@ -1,53 +1,60 @@
 import pytest
-from unittest.mock import Mock
 import requests
 from src.api_client.generic import GenericApiClient
 from src.schemas.api_schemas.stats_keywords import StatsResponse
-from unittest import mock
 
-with mock.patch("airflow.models.Variable.get") as mock_get:
-    mock_get.side_effect = lambda key, default=None: {
-        "API_KEY": "test-api-key",
-        "API_BASE_URL": "https://api.test.com",
-    }.get(key, default)
+# airflow variables provided by autouse fixture
 
 
-def test_fetch_data_valid_response_with_model(mocker):
-    mock_response = Mock()
-    mock_response.json.return_value = {
+def test_fetch_data_valid_response_with_model(requests_mock):
+    payload = {
         "stat": [
             {
-                "begin": "2025-10-14T00:00:00",
-                "end": "2025-10-14T23:59:59",
-                "keyword": "телефон",
-                "campaignName": "Кампания",
-                "advertId": 123,
-                "views": 100,
-                "clicks": 10,
-                "ctr": 0.1,
-                "cpc": 15.0,
-                "duration": 86400,
-                "sum": 1500.0,
-                "frq": 1.0
+                "advert_id": 1,
+                "nm_id": 2,
+                "stats": [
+                    {
+                        "atbs": 0,
+                        "avg_pos": 1.0,
+                        "clicks": 1,
+                        "cpc": 5.0,
+                        "cpm": 0.0,
+                        "ctr": 0.1,
+                        "norm_query": "телефон",
+                        "orders": 0,
+                        "shks": 0,
+                        "views": 10,
+                        "spend": 50,
+                    }
+                ],
             }
         ]
     }
-    mock_response.raise_for_status = Mock()
-    mocker.patch("src.api_client.generic.requests.get", return_value=mock_response)
+    requests_mock.get("https://api.test.com/foo", json=payload)
+
     client = GenericApiClient(timeout=5)
-    result = client.fetch_data(
-        url="https://api.example.com/test",
-        response_model=StatsResponse
-    )
+    result = client.fetch_data(url="https://api.test.com/foo", response_model=StatsResponse)
     assert isinstance(result, StatsResponse)
     assert len(result.stat) == 1
-    
 
-def test_fetch_data_http_error(mocker):
-    mocker.patch(
-        "src.api_client.generic.requests.get",
-        side_effect=requests.RequestException("Network error")
-    )
-    client = GenericApiClient(timeout=1)
+
+def test_fetch_data_validation_error(requests_mock):
+    bad = {"foobar": 123}
+    requests_mock.get("https://api.test.com/foo", json=bad)
+    client = GenericApiClient(timeout=5)
+    with pytest.raises(RuntimeError, match="Response validation failed"):
+        client.fetch_data(url="https://api.test.com/foo", response_model=StatsResponse)
+
+
+def test_fetch_data_no_model_returns_raw(requests_mock):
+    payload = {"a": 1}
+    requests_mock.get("https://api.test.com/foo", json=payload)
+    client = GenericApiClient(timeout=5)
+    assert client.fetch_data(url="https://api.test.com/foo") == payload
+
+
+def test_fetch_data_http_error(requests_mock):
+    requests_mock.get("https://api.test.com/foo", exc=requests.RequestException("oops"))
+    client = GenericApiClient(timeout=5)
     with pytest.raises(RuntimeError, match="HTTP request failed"):
-        client.fetch_data(url="https://api.example.com/test")
+        client.fetch_data(url="https://api.test.com/foo")

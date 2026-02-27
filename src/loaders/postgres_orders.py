@@ -36,6 +36,6 @@ class PostgresOrdersLoader(BaseLoader):
                         "srid"
                     ])
                 result = conn.execute(stmt)
-                total_loaded += (result.rowcount or 0)
+                total_loaded += (result.rowcount if getattr(result, 'rowcount', None) is not None else len(chunk))
         
         return total_loaded

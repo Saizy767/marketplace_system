@@ -21,11 +21,16 @@ class KeywordStatsTransformer(BaseTransformer):
         
         ti = context.get("task_instance")
         if ti:
-            ti.log.info(f"📊 Raw API response structure: {data.model_dump(exclude={'stats': {'__all__': {'stats'}}})}")
-            ti.log.info(f"🔢 Total AdvertStat records: {len(data.stats)}")
+            # исключаем подробные поля `stats` в логах, чтобы не захламлять вывод
+            try:
+                dumped = data.model_dump(exclude={'stat': {'__all__': {'stats'}}})
+            except Exception:
+                dumped = data.model_dump()
+            ti.log.info(f"📊 Raw API response structure: {dumped}")
+            ti.log.info(f"🔢 Total AdvertStat records: {len(data.stat)}")
             
             # Отладка: проверяем содержимое каждого AdvertStat
-            for i, advert_stat in enumerate(data.stats):
+            for i, advert_stat in enumerate(data.stat):
                 ti.log.info(
                     f"📈 AdvertStat #{i}: advert_id={advert_stat.advert_id}, "
                     f"nm_id={advert_stat.nm_id}, stats_count={len(advert_stat.stats)}"
@@ -41,7 +46,11 @@ class KeywordStatsTransformer(BaseTransformer):
         # Форматируем дату как строку в формате 'YYYY-MM-DD'
         start_date = data_interval_start.strftime("%Y-%m-%d")
         
-        dag_run_conf = context.get("dag_run", {}).conf or {}
+        dag_run = context.get("dag_run", {})
+        if isinstance(dag_run, dict):
+            dag_run_conf = dag_run.get("conf", dag_run) or {}
+        else:
+            dag_run_conf = getattr(dag_run, "conf", {}) or {}
         adverts: Optional[list[AdvertNmMapping]] = dag_run_conf.get("adverts")
 
         if not adverts:
@@ -61,7 +70,7 @@ class KeywordStatsTransformer(BaseTransformer):
             send_time_str = str(logical_end_plus_3)
         
         result = []
-        for advert_stat in data.stats:
+        for advert_stat in data.stat:
             for stat in advert_stat.stats:
                 result.append({
                     "advert_id": str(advert_stat.advert_id),

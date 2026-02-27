@@ -23,4 +23,5 @@ class AdvertStat(BaseModel):
 
 
 class StatsResponse(BaseModel):
-    stats: List[AdvertStat] = Field(..., description = "Статистика запроса")
+    # ключ "stat" приходит от API
+    stat: List[AdvertStat] = Field(..., description = "Статистика запроса")

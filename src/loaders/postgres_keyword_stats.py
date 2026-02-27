@@ -40,5 +40,5 @@ class PostgresKeywordStatsLoader(BaseLoader):
                                     "norm_query"]
                                     )
                 result = conn.execute(stmt)
-                total += (result.rowcount or 0)
+                total += (result.rowcount if getattr(result, 'rowcount', None) is not None else len(chunk))
         return total

@@ -142,7 +142,7 @@ def execute_full_etl(adverts: list[AdvertNmMapping], has_next: bool = False,
             json=params,
             response_model=StatsResponse,
         )
-        ti.log.info(f"✅ Successfully fetched data for {len(adverts)} adverts, find {len(raw_data.stats)} records")
+        ti.log.info(f"✅ Successfully fetched data for {len(adverts)} adverts, find {len(raw_data.stat)} records")
 
         # === 2. Transform ===
         ti.log.info(f"🔄 Transforming data for {len(adverts)} adverts")

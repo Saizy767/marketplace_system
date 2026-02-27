@@ -9,6 +9,7 @@ class ApiEndpoints:
     """
     api_base_url: str
     api_statistic_url: str
+    api_seller_url: str
     api_key: str
 
     @property

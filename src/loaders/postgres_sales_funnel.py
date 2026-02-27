@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 from src.db.base import BaseEngineManager
 from src.loaders.base import BaseLoader
-from src.schemas.api_schemas.sales_funnel import SalesFunnel
+from src.tables.sales_funnel import SalesFunnel
 from src.tables.base import Base
 from sqlalchemy.dialects.postgresql import insert
 
@@ -36,6 +36,6 @@ class PostgresSalesFunnelLoader(BaseLoader):
                         "date_release"
                     ])
                 result = conn.execute(stmt)
-                total_loaded += (result.rowcount or 0)
+                total_loaded += (result.rowcount if getattr(result, 'rowcount', None) is not None else len(chunk))
         
         return total_loaded

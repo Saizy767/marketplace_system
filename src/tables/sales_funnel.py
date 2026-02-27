@@ -14,6 +14,7 @@ class SalesFunnelTable(Base):
     Хранит информацию о воронке продаж.
     '''
     __tablename__ = "sales_funnel"
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nmId = Column(Integer, nullable=False, index=True)
     title = Column(String, nullable=False)
     vendorCode = Column(String, nullable=False)
@@ -36,3 +37,6 @@ class SalesFunnelTable(Base):
             "date_release",
             unique=True),
     )
+
+# Compatibility alias expected by loaders
+SalesFunnel = SalesFunnelTable

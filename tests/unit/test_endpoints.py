@@ -10,5 +10,11 @@ with mock.patch("airflow.models.Variable.get") as mock_get:
 
 def test_endpoints_construction():
     endpoints_module = endpoints.get_endpoints()
-    assert endpoints_module.STATISTIC_WORDS.endswith("/adv/v1/stat/words")
+    assert endpoints_module.STATISTIC_WORDS.endswith("/adv/v0/normquery/stats")
     assert "API_BASE_URL" not in endpoints_module.STATISTIC_WORDS
+
+
+def test_other_endpoint_present():
+    endpoints_module = endpoints.get_endpoints()
+    assert hasattr(endpoints_module, "ACTIVE_ADVERTS")
+    assert "/api/advert/v2/adverts" in getattr(endpoints_module, "ACTIVE_ADVERTS")

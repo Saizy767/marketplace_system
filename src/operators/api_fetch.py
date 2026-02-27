@@ -34,7 +34,7 @@ class ApiFetchOperator(BaseOperator):
                 response_model=StatsResponse,
             )
             duration = time.time() - start_time
-            keyword_count = len(data.stats)
+            keyword_count = len(data.stat)
             self.log.info(
                 f"✅ Successfully fetched and validated {keyword_count} keyword records "
                 f"in {duration:.2f} seconds"
